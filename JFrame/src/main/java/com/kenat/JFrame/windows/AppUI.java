@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Enumeration;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -23,6 +24,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.FontUIResource;
 
 import com.kenat.JFrame.utils.CsvUtil;
+import com.kenat.JFrame.utils.PropertiesUtil;
 
 public class AppUI extends JFrame{
 	
@@ -32,14 +34,14 @@ public class AppUI extends JFrame{
 	private static final long serialVersionUID = 1L;
 	JFileChooser jfc = new JFileChooser();
 	
-//	public static void main(String[] args) {
-//		// TODO Auto-generated method stub
-//		
-//		InitGlobalLook(new UIManager());
-//		InitGlobalFont(new Font("宋体", Font.PLAIN, 20));
-//		AppUI app = new AppUI();
-//		app.setVisible(true);
-//	}
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		InitGlobalLook(new UIManager());
+		InitGlobalFont(new Font("宋体", Font.PLAIN, 20));
+		AppUI app = new AppUI();
+		app.setVisible(true);
+	}
 	
 	public AppUI() {
 		setTitle("Masking Utility 1.0");
@@ -86,20 +88,37 @@ public class AppUI extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				//temporary save the file location
-				jfc.setCurrentDirectory(jfc.getSelectedFile());
+				PropertiesUtil.init();
+				
+				jfc.setMultiSelectionEnabled(true); 
+				
+				if (!"".equals(PropertiesUtil.get("lastPath"))) {
+					jfc.setCurrentDirectory(new File(PropertiesUtil.get("lastPath")));
+				}else {
+					//temporary save the file location
+					jfc.setCurrentDirectory(jfc.getSelectedFile());
+				}
+				System.out.println(jfc.getCurrentDirectory());
+				
 				jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 				if (jfc.showDialog(new JLabel(), "Choose") != JFileChooser.CANCEL_OPTION) {
-					File file = jfc.getSelectedFile();
-					if (file != null) {
-						if (file.getName().substring(file.getName().indexOf(".") + 1).equals("csv") ) {
-							filePath.setText(file.getAbsolutePath());
-						}else {
-							JOptionPane.showMessageDialog(null, "Not Support File Type");
+//					File file = jfc.getSelectedFile();
+					File[] files = jfc.getSelectedFiles();
+					String multi = "";
+					for (int i = 0; i < files.length; i++) {
+						File file = files[i];
+						if (file != null) {
+							if (file.getName().substring(file.getName().lastIndexOf(".") + 1).equals("csv") ) {
+								multi += file.getAbsolutePath() + ";" ;
+							}else {
+								JOptionPane.showMessageDialog(null, "Selected file [" + file.getName() + "] is not a csv!");
+							}
 						}
 					}
+					filePath.setText(multi);
+					System.out.println(filePath.getText());
+					PropertiesUtil.update("lastPath", jfc.getCurrentDirectory().toString());
 				}
-				
 			}
 		});
 		final GridBagConstraints gbc_4 = new GridBagConstraints();
@@ -176,9 +195,11 @@ public class AppUI extends JFrame{
 				}else {
 					CsvUtil csvUtil = new CsvUtil();
 					try {
-						csvUtil.updateByColumn(filePath.getText(), maskFiled.getText());
+//						csvUtil.updateByColumn(filePath.getText(), maskFiled.getText());
+						csvUtil.updateFilesByPath(filePath.getText(), maskFiled.getText());
+						
 						JOptionPane.showMessageDialog(null,"Masked Successful!");
-						Runtime.getRuntime().exec("cmd /c start " + filePath.getText());
+//						Runtime.getRuntime().exec("cmd /c start " + filePath.getText());
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

@@ -3,6 +3,7 @@
  */
 package com.kenat.JFrame.utils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +45,7 @@ public class CsvUtil {
 		while (csvReader.readRecord()){
             String line = csvReader.getRawRecord();
             String[] orignal = line.split(",");
-            orignal[headerMap.get(column)] = "Masked By Masking Utility";
+            orignal[headerMap.get(column)] = "#Masked By Masking Utility#";
             
             maskedList.add(orignal);
         }
@@ -56,6 +57,44 @@ public class CsvUtil {
 			cwriter.writeRecord(masked);
 		}
 		cwriter.close();
+	}
+	
+	public void updateFilesByPath(String fullPath, String column) throws Exception {
+		
+			List<String> pathList = new ArrayList<>();
+
+			String[] paths = fullPath.split(";");
+			for (String path : paths) {
+				if (!"".equals(path)) {
+					pathList.add(path);
+				}
+			}
+
+			for (String path : pathList) {
+				CsvReader csvReader = new CsvReader(path);
+				
+				csvReader.readHeaders();
+				List<String[]> maskedList = new ArrayList<>();
+				String header  = csvReader.getRawRecord();
+				maskedList.add(header.split(","));
+				
+				while (csvReader.readRecord()){
+					String line = csvReader.getRawRecord();
+					String[] orignal = line.split(",");
+					orignal[headerMap.get(column)] = "#Masked By Masking Utility#";
+					
+					maskedList.add(orignal);
+				}
+				csvReader.close();
+				
+				CsvWriter cwriter = new CsvWriter(path);
+				for (int i = 0; i < maskedList.size(); i++) {
+					String[] masked = maskedList.get(i);
+					cwriter.writeRecord(masked);
+				}
+				cwriter.close();
+			}
+			
 	}
 	
 //	public static void main(String[] args) throws Exception {
