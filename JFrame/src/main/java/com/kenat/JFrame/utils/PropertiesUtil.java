@@ -3,6 +3,7 @@ package com.kenat.JFrame.utils;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -12,8 +13,9 @@ public class PropertiesUtil {
 	
 	public static final String config = "config.properties";
 
-	public static final String path = FileIUtil.class.getClassLoader().getResource("config.properties").getPath();
-
+	public static String path = PropertiesUtil.class.getClassLoader().getResource("config.properties").getPath();
+	
+	
 	public static void init() {
 		InputStream inputStream = PropertiesUtil.class.getClassLoader().getResourceAsStream(config);
 		
@@ -48,6 +50,8 @@ public class PropertiesUtil {
 		FileOutputStream oFile = null;
 		
 		try {
+			path = URLDecoder.decode(path,"utf-8");
+			
 			oFile = new FileOutputStream(path);
 			//将Properties中的属性列表（键和元素对）写入输出流
 			p.store(oFile, "");
@@ -69,6 +73,8 @@ public class PropertiesUtil {
 		FileOutputStream oFile = null;
 		
 		try {
+			path = URLDecoder.decode(path,"utf-8");
+			
 			oFile = new FileOutputStream(path);
 			p.store(oFile, "");
 		} catch (IOException e) {
@@ -99,13 +105,13 @@ public class PropertiesUtil {
 		
 		PropertiesUtil.get("password");
 		System.out.println(PropertiesUtil.get("password"));
-//		PropertiesUtil.update("password","aasdsada");
-//		System.out.println(PropertiesUtil.get("password"));
-//		
-//		PropertiesUtil.delete("username");
-//		System.out.println(PropertiesUtil.get("username"));
-//		
-//		PropertiesUtil.list();
+		PropertiesUtil.update("password","aasdsada");
+		System.out.println(PropertiesUtil.get("password"));
+		
+		PropertiesUtil.delete("username");
+		System.out.println(PropertiesUtil.get("username"));
+		
+		PropertiesUtil.list();
 	}
 
 }
